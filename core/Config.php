@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Core;
 
+use function DI\value;
+
 class Config implements \ArrayAccess, \Countable
 {
 
@@ -10,54 +12,66 @@ class Config implements \ArrayAccess, \Countable
 
     static protected $_pathDelimiter;
 
-    protected $_data = [];
-
-    public function __construct(array $arrayConfig = null) {
-        $this->_data = $arrayConfig;
+    public function __construct(array $arrayConfig = []) {
+        $this->assignMember($arrayConfig);
     }
 
+    private function assignMember(array $config)
+    {
+        array_walk($config, function($element, $key){
+            if (!is_array($element) || is_object($element)) {
+                $this->$key = $element;
+            } else if (is_array($element)){
+                $this->$key = new $this($element);
+            }
+        });
+    }
 
-    public function offsetExists($index) {
-        return isset($this->_data[$index]);
+    private function findMember($memberName){
+        if (isset($this->$memberName)) return $this->$memberName;
+        return null;
+    }
+
+    public function __set($name, $value) {
+        $this->$name = $value;
+    }
+
+    public function __get($name) {
+        return $this->findMember($name);
+    }
+
+    // public function path()
+    // {
+    //     # code...
+    // }
+
+    public function offsetExists($offset) {
+        return isset($this->$offset);
     }
 
     public function get($offset, $defaultValue = null) {
-        if (array_key_exists($offset, $this->_data)) {
-            return $this->_data[$offset];
-        } else {
-            foreach ($this->_data as $nested) {
-                if (is_array($nested)){
-                    return $this->get($nested, $defaultValue);
-                }
-            }
-        }
-        return $defaultValue;
+        return $this->findMember($offset) ?: $defaultValue;
     }
 
-    public function offsetGet($index) {
-        return isset($this->_data[$index]) ? $this->_data[$index] : null;
+    public function offsetGet($offset) {
+        return $this->findMember($offset);
     }
 
-    public function offsetSet($index, $value) {
-        if (is_null($index)) {
-            $this->_data[] = $value;
-        } else {
-            $this->_data[$index] = $value;
-        }
+    public function offsetSet($offset, $value) {
+        if (is_null($offset)) throw new \Exception("Can't Assign member as null to class Core\Config.", 1);
+        $this->$offset = $value;
     }
 
     public function offsetUnset($index) {
-        unset($this->_data[$index]);
+        unset($this->$index);
     }
 
-    public function merge(Config $config) {}
-
     public function toArray() {
-        return (array) $this->_data;
+        return json_decode(json_encode($this), true);
     }
 
     public function count() {
-        return count($this->_data);
+        return count($this->toArray());
     }
 
     public static function __set_state(array $data) {
@@ -81,16 +95,5 @@ class Config implements \ArrayAccess, \Countable
     public static function getPathDelimiter() {
         return self::$_pathDelimiter;
     }
-
-    /**
-     * Helper method for merge configs (forwarding nested config instance)
-     *
-     * @param Config instance = null
-     *
-     * @param Config $config
-     * @param mixed $instance
-     * @return Config
-     */
-    protected final function _merge(Config $config, $instance = null) {}
 
 }
