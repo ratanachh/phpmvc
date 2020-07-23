@@ -43,13 +43,9 @@ class Application
      */
     public function run(): string
     {
-        /**
-         * @var ResponseInterface $response
-         */
-        // $response = $this->app->handle(BASE_URI);
-
-        // return (string) $response->getContent();
-        return "";
+        $response = $this->app->handle(BASE_URI);
+        
+        return (string) $response->getContent();
 
     }//end run()
 

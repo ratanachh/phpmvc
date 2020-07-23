@@ -9,15 +9,34 @@ use DI\Container;
 class Application
 {
 
+    /**
+     * @var Container $di
+     */
+    protected $di;
+
     public function __construct(Container $di)
     {
-        echo 'Mvc app</br>';
-
+        $this->di = $di;
     }
 
     public function handle(string $url)
     {
-        # code...
+        $this->registerDiServices();
+
+        
+        return $this;
+    }
+
+    public function getContent()
+    {
+        return "hsh";
+    }
+
+    public function registerDiServices()
+    {
+        foreach ($this->di->getKnownEntryNames() as $entity) {
+            $this->di->get($entity);
+        }
     }
 
 }
