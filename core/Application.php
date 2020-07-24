@@ -5,6 +5,7 @@ namespace Core;
 
 use DI\Container;
 
+use function App\dd;
 
 class Application
 {
@@ -22,14 +23,13 @@ class Application
     public function handle(string $url)
     {
         $this->registerDiServices();
-
-        
+        $this->di->get('router')->handle($url);
         return $this;
     }
 
     public function getContent()
     {
-        return "hsh";
+        return "";
     }
 
     public function registerDiServices()

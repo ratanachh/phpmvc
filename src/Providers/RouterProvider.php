@@ -42,9 +42,7 @@ class RouterProvider implements ServiceProviderInterface
                 if (file_exists($routes) === false || is_readable($routes) === false) {
                     throw new \Exception($routes.' file does not exist or is not readable.');
                 }
-                echo 'ses';
-                require_once $routes;
-
+                require_once ($routes);
                 return $router;
             }
         );

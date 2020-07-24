@@ -4,7 +4,6 @@ namespace App;
 
 use DI\Container;
 use Core\Application as MvcApplication;
-use Core\Interfaces\ResponseInterface;
 
 class Application
 {
@@ -82,9 +81,6 @@ class Application
         $providers = require_once $filename;
 
         foreach ($providers as $providerClass) {
-            /**
-            @var ServiceProviderInterface $provider
-             */
             $provider = new $providerClass;
             $provider->register($this->di);
         }
