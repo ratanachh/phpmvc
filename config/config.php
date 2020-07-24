@@ -29,7 +29,7 @@ return [
         'controllersDir'  => APP_PATH . '/Controllers/',
         'modelsDir'       => APP_PATH . '/Models/',
         'cacheDir'        => BASE_PATH .'/var/cache/',
-        'sessionSavePath' => BASE_PATH . 'var/cache/session/',
+        'sessionSavePath' => BASE_PATH . '/var/cache/session/',
     ],
     'mail'        => [
         'fromName'  => getenv('MAIL_FROM_NAME'),

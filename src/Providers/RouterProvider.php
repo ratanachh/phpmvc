@@ -34,9 +34,7 @@ class RouterProvider implements ServiceProviderInterface
          */
         $basePath = $application->getRootPath();
 
-        $di->set(
-            $this->providerName,
-            function () use ($basePath, $di) {
+        $di->set($this->providerName, function () use ($basePath, $di) {
                 $router = new Router();
                 $router->setDI($di);
                 $routes = $basePath.'/config/routes.php';

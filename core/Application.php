@@ -20,7 +20,6 @@ class Application
 
     public function handle(string $url)
     {
-        $this->registerDiServices();
         $this->di->get('router')->handle($url);
         return $this;
     }
@@ -28,13 +27,6 @@ class Application
     public function getContent()
     {
         return "";
-    }
-
-    public function registerDiServices()
-    {
-        foreach ($this->di->getKnownEntryNames() as $entity) {
-            $this->di->get($entity);
-        }
     }
 
 }
