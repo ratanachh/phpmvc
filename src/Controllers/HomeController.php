@@ -2,7 +2,10 @@
 
 namespace App\Controllers;
 
-class ControllerBase extends ControllerBase
+class HomeController extends ControllerBase
 {
-
+    public function index()
+    {
+        var_dump(microtime(true) - START_TIME);
+    }
 }

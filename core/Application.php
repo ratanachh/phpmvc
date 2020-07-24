@@ -5,8 +5,6 @@ namespace Core;
 
 use DI\Container;
 
-use function App\dd;
-
 class Application
 {
 

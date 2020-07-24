@@ -3,11 +3,12 @@ declare(strict_types=1);
 
 namespace Core;
 
+use Core\Interfaces\InjectableInterface;
 use DI\Container;
 
-use function App\dd;
+use Core\Utils\Helper;
 
-class Router
+class Router implements InjectableInterface
 {
 
     /**
@@ -16,34 +17,34 @@ class Router
     protected $di;
 
     /**
-     * @var Request $_request
+     * @var Request $request
      */
-    protected $_request;
+    protected $request;
 
     /**
-     * @var array $_getHandler
+     * @var array $getHandler
      */
-    protected $_getHandler = [];
+    protected $getHandler = [];
 
     /**
-     * @var array $_postHandler
+     * @var array $postHandler
      */
-    protected $_postHandler = [];
+    protected $postHandler = [];
 
     /**
-     * @var array $_putHandler
+     * @var array $putHandler
      */
-    protected $_putHandler = [];
+    protected $putHandler = [];
 
     /**
-     * @var array $_deleteHandler
+     * @var array $deleteHandler
      */
-    protected $_deleteHandler = [];
+    protected $deleteHandler = [];
 
     public function __construct()
     {
         try{
-            $this->_request = new Request();
+            $this->request = new Request();
         }catch(\Exception $e) {
             die ($e->getMessage());
         }
@@ -57,18 +58,21 @@ class Router
     public function __call($name, $params)
     {
         $pattern = array_shift($params);
-        $level =  count(array_diff(explode('/', $pattern), [''])); // Clean empty string from array
-        $this->{"_$name" . "Handler"}[$level][$pattern] =  array_shift($params);
+        $level =  count(Helper::cleanEmptyValueArray(explode('/', $pattern)));
+        $this->{"$name" . "Handler"}[$level][$pattern] =  array_shift($params);
     }
 
     public function handle($url)
     {
         try{
-            $method = strtolower($this->_request->getMethod());
+            $method = strtolower($this->request->getMethod());
 
             $resolver = new UrlResolver($url);
-            $resolver->setData($this->{"_$method" . "Handler"});
-            $resolver->resolve();
+            $resolver->setDI($this->di);
+            $resolver->setData($this->{"$method" . "Handler"});
+            $call = $resolver->resolve();
+
+            call_user_func_array(...$call);
         } catch(\Exception $e) {
             die ($e->getMessage());
         }

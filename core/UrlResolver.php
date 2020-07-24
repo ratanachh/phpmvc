@@ -3,37 +3,88 @@ declare(strict_types=1);
 
 namespace Core;
 
-use function App\dd;
+use Core\Interfaces\InjectableInterface;
+use Core\Utils\Helper;
+use DI\Container;
 
-class UrlResolver
+class UrlResolver implements InjectableInterface
 {
-    protected $_pattern;
-    protected $_class;
-    protected $_action;
-    protected $_params;
-    protected $_handler = [];
-    protected $_url;
+    /**
+     * @var Container $di
+     */
+    protected $di;
+    protected $handler = [];
+    protected $url;
+    protected $defaultController = 'home';
+    protected $defaultAction = 'index';
 
     public function __construct($url)
     {
-        $this->_url = $url;
+        $this->url = $url;
     }
 
     public function setData(array $handler)
     {
-        $this->_handler = $handler;
+        $this->handler = $handler;
+    }
+
+    public function setDI(Container $di)
+    {
+        $this->di = $di;
     }
 
     public function resolve()
     {
-        $level =  count(array_diff(explode('/', $this->_url), ['']));
-        if (!isset($this->_handler[$level])) throw new \Exception("Not Found.", 1);
+        $urlArray = array_values(Helper::cleanEmptyValueArray(explode('/', $this->url)));
+        $level =  count($urlArray);
+        if (!isset($this->handler[$level])) throw new \Exception("Not Found.", 1);
+        
+        $found = [];
+        foreach ($this->handler[$level] as $pattern => $route) {
+            $controller = $this->defaultController;
+            $action = $this->defaultAction;
+            $params = [];
+            if (!is_callable($route) && strpos($route, '@')) {
+                $ex = explode('@', $route);
+                $controller = $ex [0];
+                $action = $ex [1];
+            }
 
-        foreach ($this->_handler[$level] as $pattern => $route) {
-            foreach (explode('/', $pattern) as $val) {
-                
+            if ($pattern != '/') {
+                $patternArray = array_values(Helper::cleanEmptyValueArray(explode('/', $pattern)));
+                $match = true;
+                foreach ($patternArray as $k => $val) {
+                    if ($val == $urlArray[$k]) continue;
+                    else if(strpos($val, '{') !== false && strrpos($val, '}') !== false ) {
+                        $params[] = $urlArray[$k];
+                        continue;
+                    } else $match = false;
+                }
+
+                if ($match) {
+                    if (is_string($route) && strpos($route, '@')) {
+                        $controller = $this->di->get('loader')->getNamespace($controller);
+                        $dispatch = [];
+                        if (method_exists($controller, $action)) {
+                            $dispatch = new $controller();
+                            $dispatch->setDI($this->di);
+                            $found = [[$dispatch, $action], $params];
+                        } else {
+                            throw new \Exception("The method $action doesn't exist in $controller.", 1);
+                        }
+                    } else if (is_callable($route)) {
+                        $found = [$route, $params];
+                    }
+                    break;
+                }
+            } else {
+                $controller = $this->di->get('loader')->getNamespace($controller);
+                $dispatch = new $controller();
+                $dispatch->setDI($this->di);
+                $found = [[$dispatch, $action], $params];
             }
         }
+        return $found;
     }
 
 }

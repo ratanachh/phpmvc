@@ -3,14 +3,12 @@ declare(strict_types=1);
 
 namespace Core;
 
-use function DI\value;
-
 class Config implements \ArrayAccess, \Countable
 {
 
     const DEFAULT_PATH_DELIMITER = '.';
 
-    static protected $_pathDelimiter;
+    static protected $pathDelimiter;
 
     public function __construct(array $arrayConfig = []) {
         $this->assignMember($arrayConfig);
@@ -84,7 +82,7 @@ class Config implements \ArrayAccess, \Countable
      * @param string $delimiter
      */
     public static function setPathDelimiter($delimiter = null) {
-        self::$_pathDelimiter = $delimiter;
+        self::$pathDelimiter = $delimiter;
     }
 
     /**
@@ -93,7 +91,7 @@ class Config implements \ArrayAccess, \Countable
      * @return string
      */
     public static function getPathDelimiter() {
-        return self::$_pathDelimiter;
+        return self::$pathDelimiter;
     }
 
 }

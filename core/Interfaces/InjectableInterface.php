@@ -5,7 +5,7 @@ namespace Core\Interfaces;
 
 use DI\Container;
 
-interface ServiceProviderInterface
+interface InjectableInterface
 {
-    function register(Container $di): void;
+    function setDI(Container $di);
 }

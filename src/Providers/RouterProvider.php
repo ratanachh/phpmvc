@@ -36,8 +36,9 @@ class RouterProvider implements ServiceProviderInterface
 
         $di->set(
             $this->providerName,
-            function () use ($basePath) {
+            function () use ($basePath, $di) {
                 $router = new Router();
+                $router->setDI($di);
                 $routes = $basePath.'/config/routes.php';
                 if (file_exists($routes) === false || is_readable($routes) === false) {
                     throw new \Exception($routes.' file does not exist or is not readable.');

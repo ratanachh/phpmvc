@@ -3,16 +3,18 @@ declare(strict_types=1);
 
 namespace Core;
 
+use Core\Interfaces\InjectableInterface;
 use DI\Container;
 
-
-class Controller
+abstract class Controller extends Application implements InjectableInterface
 {
 
-    public function __construct(Container $di)
+    public function setDI(Container $di)
     {
-        echo 'Mvc Controller</br>';
-
+        $this->di = $di;
+        $this->registerService($di);
     }
+
+    abstract protected function registerService(Container $di);
 
 }
