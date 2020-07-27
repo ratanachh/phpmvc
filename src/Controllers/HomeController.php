@@ -8,7 +8,6 @@ class HomeController extends ControllerBase
     {
         $this->session->t = 'test';
 
-        $this->session->t = null;
         var_dump(microtime(true) - START_TIME);
     }
 }

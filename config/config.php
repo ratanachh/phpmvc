@@ -27,9 +27,9 @@ return [
         'cryptSalt'       => getenv('APP_CRYPT_SALT'),
         'viewsDir'        => APP_PATH . '/Views/default',
         'controllersDir'  => APP_PATH . '/Controllers/',
+        'languageDir'     => APP_PATH . '/Lang/',
         'modelsDir'       => APP_PATH . '/Models/',
-        'cacheDir'        => BASE_PATH .'/var/cache/',
-        'sessionSavePath' => BASE_PATH . '/var/cache/session/',
+        'cacheDir'        => BASE_PATH .'/var/cache/'
     ],
     'mail'        => [
         'fromName'  => getenv('MAIL_FROM_NAME'),

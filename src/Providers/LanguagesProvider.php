@@ -4,15 +4,15 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Core\Interfaces\ServiceProviderInterface;
-use Core\Session;
+use Core\Locale;
 use DI\Container;
 
-class SessionProvider implements ServiceProviderInterface
+class LanguageProvider implements ServiceProviderInterface
 {
     /**
      * @var string $providerName
      */
-    protected $providerName = 'session';
+    protected $providerName = 'lang';
 
     /**
      * @param Container $di
@@ -21,8 +21,10 @@ class SessionProvider implements ServiceProviderInterface
      */
     public function register(Container $di): void
     {
-        $di->set($this->providerName, function(){
-            return new Session();
+        $config = $di->get('config');
+
+        $di->set($this->providerName, function() use ($config){
+            return new Locale($config->);
         });
     }
 

@@ -28,6 +28,5 @@ class ConfigProvider implements ServiceProviderInterface
             $config = require_once $rootPath . '/config/config.php';
             return new Config($config);
         });
-        $di->get($this->providerName);
     }
 }

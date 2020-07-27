@@ -21,13 +21,16 @@ class Controller extends Application implements InjectableInterface
     public function setDI(Container $di)
     {
         $this->di = $di;
-        $this->registerService($di);
     }
 
-    protected function registerService(Container $di){
-        $this->route = $di->get('router');
-        $this->config = $di->get('config');
-        $this->session = $di->get('session');
+    public function __get($name)
+    {
+        if (!in_array($name, $this->di->getKnownEntryNames())) {
+            throw new \Exception("You must register class $name in Provider.", 1);
+            
+        }
+        $this->$name = $this->di->get($name);
+        return $this->$name;
     }
 
 }
