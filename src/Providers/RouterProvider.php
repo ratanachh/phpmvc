@@ -5,7 +5,11 @@ namespace App\Providers;
 
 use Core\Interfaces\ServiceProviderInterface;
 use Core\Router;
-use DI\Container;
+use DI\{
+    Container,
+    DependencyException,
+    NotFoundException
+};
 use App\Application;
 
 class RouterProvider implements ServiceProviderInterface
@@ -19,6 +23,8 @@ class RouterProvider implements ServiceProviderInterface
      * @param Container $di
      *
      * @return void
+     * @throws DependencyException
+     * @throws NotFoundException
      */
     public function register(Container $di): void
     {

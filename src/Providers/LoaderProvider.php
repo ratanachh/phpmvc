@@ -4,7 +4,11 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use Core\Interfaces\ServiceProviderInterface;
-use DI\Container;
+use DI\{
+    Container,
+    DependencyException,
+    NotFoundException
+};
 
 use Core\Loader;
 
@@ -19,6 +23,8 @@ class LoaderProvider implements ServiceProviderInterface
      * @param Container $di
      *
      * @return void
+     * @throws DependencyException
+     * @throws NotFoundException
      */
     public function register(Container $di): void
     {
