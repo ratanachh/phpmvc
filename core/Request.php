@@ -12,14 +12,14 @@ class Request
     protected $requestMethodName;
 
         /**
-     * @var array $_httpMethod
+     * @var array $httpMethod
      */
-    protected $_httpMethod = ['get', 'post', 'put', 'delete'];
+    protected $httpMethod = ['get', 'post', 'put', 'delete'];
 
     public function __construct()
     {
         $this->requestMethodName = strtolower($_SERVER['REQUEST_METHOD']);
-        if (!in_array($this->requestMethodName, $this->_httpMethod)) 
+        if (!in_array($this->requestMethodName, $this->httpMethod))
             throw new \Exception("Not Support Http Method Name.", 1);
     }
 

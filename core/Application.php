@@ -7,7 +7,6 @@ use DI\Container;
 
 class Application
 {
-
     /**
      * @var Container $di
      */
@@ -28,5 +27,7 @@ class Application
     {
         return "";
     }
+
+
 
 }

@@ -41,6 +41,11 @@ class Router implements InjectableInterface
      */
     protected $deleteHandler = [];
 
+    /**
+     * @var string $routeSeparator
+     */
+    protected $routeSeparator = '/';
+
     public function __construct()
     {
         try{
@@ -58,24 +63,22 @@ class Router implements InjectableInterface
     public function __call($name, $params)
     {
         $pattern = array_shift($params);
-        $level =  count(Helper::cleanEmptyValueArray(explode('/', $pattern)));
+        $level =  count(Helper::cleanEmptyValueArray(explode($this->routeSeparator, $pattern)));
         $this->{"$name" . "Handler"}[$level][$pattern] =  array_shift($params);
     }
 
     public function handle($url)
     {
-        try{
-            $method = strtolower($this->request->getMethod());
-
-            $resolver = new UrlResolver($url);
-            $resolver->setDI($this->di);
-            $resolver->setData($this->{"$method" . "Handler"});
-            $call = $resolver->resolve();
-
-            call_user_func_array(...$call);
-        } catch(\Exception $e) {
-            die ($e->getMessage());
+        $method = strtolower($this->request->getMethod());
+        $resolver = new UrlResolver($url);
+        $resolver->setDI($this->di);
+        $resolver->setData($this->{"$method" . "Handler"});
+        $resolver->setRouteSeparator($this->routeSeparator);
+        $call = $resolver->resolve();
+        if (count($call) === 0 ){
+            throw new \Exception("Not found");
         }
+        call_user_func_array(...$call);
     }
 
 }

@@ -23,6 +23,16 @@ class Loader
         spl_autoload_register(__NAMESPACE__ .'\Loader::load');
     }
 
+    public function unregister()
+    {
+        spl_autoload_unregister(__NAMESPACE__ .'\Loader::load');
+    }
+
+    public function __destruct()
+    {
+        $this->unregister();
+    }
+
     public static function load($classes)
     {
         $load = new self();

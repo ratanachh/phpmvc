@@ -4,6 +4,7 @@ namespace App;
 
 use DI\Container;
 use Core\Application as MvcApplication;
+use Exception;
 
 class Application
 {
@@ -31,7 +32,13 @@ class Application
         $this->rootPath = $rootPath;
 
         $this->di->set(self::APPLICATION_PROVIDER, $this);
-        $this->initializeProviders();
+        try {
+            $this->initializeProviders();
+            $this->_set_reporting();
+            $this->_unregister_globals();
+        } catch (Exception $e) {
+            echo $e->getMessage();
+        }
     }
 
     /**
@@ -42,10 +49,13 @@ class Application
      */
     public function run(): string
     {
-        $response = $this->app->handle(BASE_URI);
-        
-        return (string) $response->getContent();
-
+        try {
+            $response = $this->app->handle(BASE_URI);
+            return (string) $response->getContent();
+        } catch (Exception $exception){
+            echo $exception->getMessage();
+        }
+        return '';
     }//end run()
 
     /**
@@ -75,7 +85,7 @@ class Application
         $filename = $this->rootPath.'/config/providers.php';
 
         if (!file_exists($filename) || !is_readable($filename)) {
-            throw new \Exception('File providers.php does not exist or is not readable.');
+            throw new Exception('File providers.php does not exist or is not readable.');
         }
 
         $providers = require_once $filename;
@@ -86,4 +96,36 @@ class Application
         }
 
     }//end initializeProviders()
+
+    private function _set_reporting()
+    {
+        if (getenv('APP_DEBUG'))
+        {
+            error_reporting(E_ALL);
+            ini_set('display_errors', "1");
+        }
+        else
+        {
+            $logPath = $this->di->get('config')->logger->path;
+            error_reporting(0);
+            ini_set('display_errors', "1");
+            ini_set('log_errors', "1");
+            ini_set('error_log', $logPath. 'errors.log');
+        }
+    }
+
+    private function _unregister_globals()
+    {
+        if (ini_get('register_globals'))
+        {
+            $global_arr = ['_SESSION', '_COOKIE', '_POST', '_GET', '_REQUEST', '_SERVER', '_ENV', '_FILES'];
+            foreach ($global_arr as $key => $value)
+            {
+                if ($GLOBALS[$key] === $value)
+                {
+                    unset($GLOBALS[$key]);
+                }
+            }
+        }
+    }
 }

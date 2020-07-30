@@ -17,6 +17,7 @@ class UrlResolver implements InjectableInterface
     protected $url;
     protected $defaultController = 'home';
     protected $defaultAction = 'index';
+    protected $routeSeparator = '/';
 
     public function __construct($url)
     {
@@ -35,7 +36,7 @@ class UrlResolver implements InjectableInterface
 
     public function resolve()
     {
-        $urlArray = array_values(Helper::cleanEmptyValueArray(explode('/', $this->url)));
+        $urlArray = array_values(Helper::cleanEmptyValueArray(explode($this->routeSeparator, $this->url)));
         $level =  count($urlArray);
         if (!isset($this->handler[$level])) throw new \Exception("Not Found.", 1);
         
@@ -51,7 +52,7 @@ class UrlResolver implements InjectableInterface
             }
 
             if ($pattern != '/') {
-                $patternArray = array_values(Helper::cleanEmptyValueArray(explode('/', $pattern)));
+                $patternArray = array_values(Helper::cleanEmptyValueArray(explode($this->routeSeparator, $pattern)));
                 $match = true;
                 foreach ($patternArray as $k => $val) {
                     if ($val == $urlArray[$k]) continue;
@@ -64,7 +65,6 @@ class UrlResolver implements InjectableInterface
                 if ($match) {
                     if (is_string($route) && strpos($route, '@')) {
                         $controller = $this->di->get('loader')->getNamespace($controller);
-                        $dispatch = [];
                         if (method_exists($controller, $action)) {
                             $dispatch = new $controller();
                             $dispatch->setDI($this->di);
@@ -85,6 +85,11 @@ class UrlResolver implements InjectableInterface
             }
         }
         return $found;
+    }
+
+    public function setRouteSeparator(string $routeSeparator)
+    {
+        $this->routeSeparator = $routeSeparator;
     }
 
 }

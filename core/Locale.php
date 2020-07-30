@@ -3,20 +3,67 @@ declare(strict_types=1);
 
 namespace Core;
 
-class Locale
+use Core\Interfaces\InjectableInterface;
+use DI\Container;
+
+class Locale implements InjectableInterface
 {
+    protected $defaultLocalization = 'en';
+    protected $dirPath;
+    protected $di;
+    protected $session;
+
     public function __construct($dirPath)
     {
-        echo '';
+        $this->dirPath = $dirPath;
     }
 
     public function get($key)
     {
+        $this->loadConfiguration($key);
+
+    }
+
+    public function translate($key, ...$values)
+    {
+        $this->loadConfiguration($key);
         # code...
     }
 
-    public function translate($format, ...$values)
+    /**
+     * @param Container $di
+     */
+    public function setDI(Container $di)
     {
-        # code...
+        $this->di = $di;
+    }
+
+    public function loadConfiguration($key)
+    {
+        $sessionLanguage = $this->session->get('language') ?? $this->defaultLocalization;
+        $file = explode('.', $key);
+        $translateText = require_once $this->dirPath . $sessionLanguage . DIRECTORY_SEPARATOR . $file[0] . pathinfo(__FILE__, PATHINFO_EXTENSION);
+        //var_dump($translateText);
+    }
+
+    public function setSession($session)
+    {
+        $this->session = $session;
+    }
+
+    /**
+     * @param string $defaultLocalization
+     */
+    public function setDefaultLocalization(string $defaultLocalization): void
+    {
+        $this->session->set('language', $defaultLocalization);
+    }
+
+    /**
+     * @return string
+     */
+    public function getDefaultLocalization(): string
+    {
+        return $this->session->get('language');
     }
 }

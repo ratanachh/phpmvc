@@ -27,7 +27,6 @@ class Controller extends Application implements InjectableInterface
     {
         if (!in_array($name, $this->di->getKnownEntryNames())) {
             throw new \Exception("You must register class $name in Provider.", 1);
-            
         }
         $this->$name = $this->di->get($name);
         return $this->$name;
